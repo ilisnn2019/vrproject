@@ -1,2 +1,2 @@
-#VR Project
-##Bartender simulator
+# VR Project
+## Bartender simulator

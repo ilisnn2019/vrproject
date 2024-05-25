@@ -34,6 +34,8 @@ public class Shaker : MonoBehaviour, IListener
 
     public GameObject shakerCapObject;
 
+    public GameObject ice;
+
     void Awake()
     {
         StartCoroutine(WaitForEventManagerInitialization());
@@ -198,5 +200,14 @@ public class Shaker : MonoBehaviour, IListener
         //sourable active
         shakerCapPourable.SetActive(true);
         shakerCapPourable.GetComponent<Pourable>().Set_Color(liquid.l_color);
+    }
+
+    protected void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("ice"))
+        {
+            if (ice.activeSelf == false)
+                ice.SetActive(true);
+        }
     }
 }

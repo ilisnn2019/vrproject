@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Bottle : Pourable
 {
-
     protected override void Start()
     {
         base.Start();

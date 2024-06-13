@@ -1,11 +1,30 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Storable : LiquidContainer
 {
-    protected Dictionary<Liquid, LiquidInfo> liquids = new();
+    [Header("Variables for Storable Container")]
+    protected bool ispoured = false;
+
+    protected float recover_time = 1.5f;
+    protected float interval_time = 0;
+
+    protected Liquids input_liquids; //들어오는 액체
+
+    protected Liquids prev_liquids;
+
+    public AudioClip storingclip;
+
+    public AudioClip washingclip;
+
+    protected float liquid_mensurating;
+
+
+    [SerializeField]
+    GameObject ice;
 
     // Start is called before the first frame update
     protected override void Start()
@@ -17,48 +36,80 @@ public class Storable : LiquidContainer
     protected override void Update()
     {
         base.Update();
+
+        if (interval_time > 0)
+        {
+            interval_time -= Time.deltaTime;
+        }
+        else
+        {
+            input_liquids = null;
+            ispoured = false;
+        }
+
+        if (amount <= 0)
+        {
+            liquid_mensurating = 0;
+            prev_liquids = null;
+            input_liquids = null;
+            liquids.Clear();
+        }
     }
 
     protected void OnParticleCollision(GameObject other)
     {
-        AddLiquid(other);
-    }
-
-    protected void AddLiquid(GameObject other, float amount = 0.1f)
-    {
-        
-        other.transform.parent.TryGetComponent(out Liquid liquid);
-
-        if (liquid == null)
+        if (!other.transform.parent.TryGetComponent(out LiquidContainer container))
         {
             return;
         }
-
-        LiquidInfo value;
-
-        if (!liquids.ContainsKey(liquid)) //이미 있는 액체
-        {
-            liquids.Add(liquid, new LiquidInfo(liquid, amount));
-        }
-
-        liquids.TryGetValue(liquid, out value);
-        value.AddLiquid(amount);
-
-        this.amount += amount;
-
-        MixColor();
+        input_liquids = container.Get_Liquids();
+        AddLiquid();
     }
 
-    private void MixColor()
+    protected virtual void AddLiquid(float amount = 0.4f)
     {
-        Color resultColor = Color.white;
-        foreach (LiquidInfo info in liquids.Values)
+        if (input_liquids == null) return;
+
+        interval_time = recover_time;
+
+        if (ispoured == false) //따르는 상태가 아니라면,
         {
-            resultColor = Color.Lerp(resultColor, info.GetColor(), 0.5f);
+            ispoured = true;
         }
-        resultColor.a = 1;
 
-        liquidInBottle.l_color = resultColor;
+        if (this.amount <= capacity)
+        {
+            liquids.AddLiquids(input_liquids, amount);
 
+            //계량중인 액체양
+            this.amount += amount;
+
+            soundfunction.ClipPlay(storingclip);
+        }
+    }
+
+    protected void OnTriggerStay(Collider other)
+    {
+        if (other.CompareTag("sink"))
+        {
+            if (washingclip == null) return;
+            soundfunction.ClipPlay(washingclip);
+            amount = 0;
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (ice == null) return;
+        if (other.CompareTag("ice"))
+        {
+            if (clips[0] != null) soundfunction.ClipPlay(clips[0]);
+
+            if (ice.activeSelf == false)
+            {
+                ice.SetActive(true);
+            }
+        }
     }
 }
+

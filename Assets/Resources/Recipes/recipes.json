@@ -1,0 +1,109 @@
+﻿{
+  "Recipes": [
+    {
+      "Name": "Black Russian",
+      "Ingredients": [
+        {
+          "Name": "Kahlúa",
+          "Amount": 1
+        },
+        {
+          "Name": "Vodka",
+          "Amount": 2
+        }
+      ],
+      "Description": "The Black Russian is a bold and straightforward cocktail made with vodka and coffee liqueur, usually served over ice in an rocks glass.",
+      "RecipeInstructions": "1. Fill a cocktail shaker with ice.\n2.Add Kahlúa and Vodka.\n3.Shake well.\n4.Strain the mixture into a rocks glass filled with ice.\n5.Serve immediately."
+    },
+    {
+      "Name": "Sledgehammer",
+      "Ingredients": [
+        {
+          "Name": "Lime Juice",
+          "Amount": 1
+        },
+        {
+          "Name": "Vodka",
+          "Amount": 2
+        }
+      ],
+      "Description": "The Sledgehammer cocktail is a potent and flavorful drink typically made with fruit juice and Vodka, served over ice in a rocks glass.",
+      "RecipeInstructions": "1.Fill a cocktail shaker with ice.\n2.Add Vodka and Lime Juice.\n3.Shake well.\n4.Strain the mixture into a rocks glass.\n5.Serve immediately."
+    },
+    {
+      "Name": "Mojito",
+      "Ingredients": [
+        {
+          "Name": "Rum",
+          "Amount": 1.5
+        },
+        {
+          "Name": "Lime Juice",
+          "Amount": 1
+        }
+      ],
+      "Description": "The Mojito is a refreshing Cuban cocktail made with fresh mint, lime juice, white rum, perfect for hot summer days.",
+      "RecipeInstructions": "1.Fill a cocktail shaker with ice.\n2.Add Rum and Lime Juice.\n3.Shake well.\n4.Fill a collins glass with ice and strain the mixture.\n5.Serve immediately."
+    },
+    {
+      "Name": "Jack and Coke",
+      "Ingredients": [
+        {
+          "Name": "Jack Daniel",
+          "Amount": 1.5
+        },
+        {
+          "Name": "Coke",
+          "Amount": 4
+        }
+      ],
+      "Description": "The Jack and Coke is a classic cocktail made with Jack Daniel's Tennessee Whiskey and Coca-Cola, typically served over ice in a highball glass.",
+      "RecipeInstructions": "1.Fill a cocktail shaker with ice and add Jack Daniel.\n2.Shake well.\n3.Fill a glass with ice and pour chilled Jack.\n4.Add coke and serve."
+    },
+    {
+      "Name": "Rum and Coke",
+      "Ingredients": [
+        {
+          "Name": "Rum",
+          "Amount": 1.5
+        },
+        {
+          "Name": "Coke",
+          "Amount": 4
+        }
+      ],
+      "Description": "The Rum and Coke is a Jack and Coke, just uses Rum, typically served over ice in a highball glass.",
+      "RecipeInstructions": "1.Fill a cocktail shaker with ice and add Rum.\n2.Shake well.\n3.Fill a glass with ice and pour chilled rum.\n4.Add coke and serve."
+    },
+    {
+      "Name": "Bombay Sapphire Collins",
+      "Ingredients": [
+        {
+          "Name": "Bombay Sapphire",
+          "Amount": 2
+        },
+        {
+          "Name": "Lime Juice",
+          "Amount": 1
+        }
+      ],
+      "Description": "The Bombay Sapphire Collins is a classic cocktail made with Bombay Sapphire gin, Lime juice, served over ice in a Collins glass.",
+      "RecipeInstructions": "1.Fill a cocktail shaker with ice.\n2.Add Bombay Sapphire gin and Lime Juice.\n3.Shake well.\n4.Strain the mixture into a Collins glass filled with ice.\n5.Serve immediately."
+    },
+    {
+      "Name": "Vodka Martini",
+      "Ingredients": [
+        {
+          "Name": "Vodka",
+          "Amount": 6
+        },
+        {
+          "Name": "Bombay Sapphire",
+          "Amount": 1
+        }
+      ],
+      "Description": "A vodka martini is a classic cocktail and easy to make with just vodka, dry vermouth, and ice. Gin can be alteration",
+      "RecipeInstructions": "1.Fill a cocktail shaker with ice.\n2.Add Vodka and Bombay Sapphire gin.\n3.Shake well.\n4.Strain the mixture into a martini glass and serve."
+    }
+  ]
+}

@@ -3,36 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum LC_TYPE { BOTH, POURABLE, STORABLE }
-
-public class LiquidInfo
-{
-    readonly Liquid liquidType;
-    private float amount;
-
-    public LiquidInfo(Liquid type, float amount)
-    {
-        liquidType = type;
-        this.amount = amount;
-    }
-
-    public void AddLiquid(float amount)
-    {
-        this.amount += amount;
-    }
-    public Color GetColor()
-    {
-        return liquidType.l_color;
-    }
-    public float GetAmount()
-    {
-        return amount;
-    }
-}
-
-[RequireComponent(typeof(Liquid))]
+[RequireComponent(typeof(SoundFunction))]
+[RequireComponent(typeof(Liquids))]
 public class LiquidContainer : MonoBehaviour
 {
+    [Header("Variables for Liquid Container")]
 
     [Header("Renderer of Object hold Liquid Material")]
     [SerializeField]
@@ -61,41 +36,67 @@ public class LiquidContainer : MonoBehaviour
     protected float resultAmount;
 
     [Header("Liquid in Bottle")]
-    [SerializeField]
-    protected Liquid liquidInBottle;
+    protected Liquids liquids;
 
     [SerializeField]
-    Transform bottom;
+    protected Transform bottom;
+
+
+    public List<AudioClip> clips;
+
+    protected SoundFunction soundfunction;
 
     protected virtual void Start()
     {
+        liquids = GetComponent<Liquids>();
+
         liquidMaterial = rend.material;
         boundSize = rend.bounds.size;
-        liquidInBottle = GetComponent<Liquid>();
 
-
-        Color color = liquidInBottle.l_color;
-        liquidMaterial.SetColor("_Color", color);
+        soundfunction = GetComponent<SoundFunction>();
     }
 
     // Update is called once per frame
     protected virtual void Update()
     {
         Liquid_Calculate();
+        liquidMaterial.SetColor("_Color", liquids.GetOverallColor());
 
-        liquidMaterial.SetColor("_Color", liquidInBottle.l_color);
     }
 
-    protected void Liquid_Calculate()
+    protected virtual void Liquid_Calculate()
     {
-        float ratio = amount > capacity ? 1 : (amount / capacity);
+        if (amount <= 0)
+        {
 
-        // x-z 평면과 이루는 각도를 구함
-        angle = Vector3.Dot(Vector3.up, bottom.transform.up.normalized);
+            liquidMaterial.SetFloat("_FillAmount", -100) ;
+        }
+        else if(amount >= capacity)
+        {
+            liquidMaterial.SetFloat("_FillAmount", 100);
+        }
+        else
+        {
+            float ratio = amount > capacity ? 1 : (amount / capacity);
 
+            // x-z 평면과 이루는 각도를 구함
+            angle = Vector3.Dot(Vector3.up, bottom.transform.up.normalized);
 
-        resultAmount = angle >= 0 ? angle * boundSize.y  *  ratio  * scale : angle * boundSize.y * (1 - ratio) * scale;
+            resultAmount = angle >= 0 ? angle * boundSize.y * ratio * scale : angle * boundSize.y * (1 - ratio) * scale;
 
-        liquidMaterial.SetFloat("_FillAmount", resultAmount + bottom.position.y);
+            liquidMaterial.SetFloat("_FillAmount", resultAmount + bottom.position.y);
+        }
+    }
+
+    public void Set_Liquids(Liquids liquid)
+    {
+        liquids = liquid;
+        liquidMaterial.SetColor("_Color", liquids.GetOverallColor());
+    }
+
+    public Liquids Get_Liquids()
+    {
+        if (liquids == null) return null;
+        else return liquids;
     }
 }

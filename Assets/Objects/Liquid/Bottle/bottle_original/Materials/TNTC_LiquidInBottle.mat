@@ -44,16 +44,16 @@ Material:
     - _Metallic: 0.571
     - _RimPower: 12.57
     - _RotationSpeed: 0
-    - _Ruffle: 10
+    - _Ruffle: 12.68
     - _RuffleStrenght: 100
     - _StencilMask: 255
     - _StencilRef: 255
-    - _StencilValue: 255
+    - _StencilValue: 81
     m_Colors:
     - _Color: {r: 0.23215558, g: 0.3259555, b: 0.3490566, a: 0.27450982}
     - _CrossColor: {r: 0.23529412, g: 0.32941177, b: 0.3529412, a: 0.27450982}
     - _PlaneNormal: {r: -0, g: 1.0000001, b: 0.00000011920929, a: 0}
     - _PlanePosition: {r: -11.1118965, g: 1.213, b: 0.68108505, a: 0}
     - _RimColor: {r: 0.38679248, g: 0.38679248, b: 0.38679248, a: 1}
-    - _TopColor: {r: 0.23137255, g: 0.3254902, b: 0.34901962, a: 0.27450982}
+    - _TopColor: {r: 0.36320752, g: 0.8726413, b: 1, a: 0.27450982}
   m_BuildTextureStacks: []

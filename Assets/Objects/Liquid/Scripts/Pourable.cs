@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Pourable : LiquidContainer
 {
+    public float Threshold_Angle;
+
     [Header("ParticleSystem water pouring")]
     [SerializeField]
     protected ParticleSystem particle;
@@ -12,56 +14,73 @@ public class Pourable : LiquidContainer
 
     protected Material m_particle;
 
-    protected Material m_particletail;
+    public bool IsCapoff;
+
+    public GameObject remove_cap;
+
+    public AudioClip sound;
+    AudioSource audiosource;
 
     protected override void Start()
     {
         particleRenderer = particle.gameObject.GetComponent<ParticleSystemRenderer>();
 
-        base.Start();
-    }
+        m_particle = particleRenderer.materials[0];
 
-    public void Set_Color(Color color)
-    {
-        liquidInBottle.l_color = color;
+        audiosource = GetComponent<AudioSource>();
+
+        base.Start();
     }
 
     // Update is called once per frame
     protected override void Update()
     {
-        m_particle = particleRenderer.material;
-        m_particletail = particleRenderer.trailMaterial;
-
-        Color color = liquidInBottle.l_color;
-
-        m_particle.SetColor("_Color", color);
-        m_particletail.SetColor("_Color", color);
-
         base.Update();
-        Liquid_Pouring();
 
+        if(IsCapoff) Liquid_Pouring(); //따를 수 있는 상태
     }
+
+
+    private void DyeParticle()
+    {
+        m_particle = particleRenderer.materials[0];
+        m_particle.SetColor("_Color", liquids.GetOverallColor());
+        particleRenderer.trailMaterial = m_particle;
+    }
+
 
     protected void Liquid_Pouring()
     {
-        float angle = Vector3.Dot(Vector3.up, transform.up);
-        //DebugText.debugText.text = angle.ToString();
+        float angle = Vector3.Dot(Vector3.up, bottom.transform.up);
+        
 
-        if (angle <= 0)
+        if (angle <= Threshold_Angle)
         {
+            OnParticlePlay();
+        }
+        else if (angle > Threshold_Angle)
+        {
+            OnParticleStop();
+        }
 
-            particle.Play();
-        }
-        else if (angle > 0)
-        {
-            particle.Stop();
-        }
+        DyeParticle();
     }
 
-    public Liquid Get_Liquid()
+    public void Capoff()
     {
-        if (liquidInBottle == null) return null;
-        else return liquidInBottle;
+        if (audiosource != null) audiosource.Play();
+        IsCapoff = true;
+        remove_cap.SetActive(false);
+    }
+
+    public void OnParticlePlay()
+    {
+        particle.Play();
+    }
+
+    public void OnParticleStop()
+    {
+        particle.Stop();
     }
 }
 

@@ -9,7 +9,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 public struct HandController
 {
     public XRHandController hand;
-    public float value;    
+    public float value;
 }
 
 public class Shaker : MonoBehaviour, IListener
@@ -20,7 +20,7 @@ public class Shaker : MonoBehaviour, IListener
 
     private BoxCollider shaker_Collider;
 
-    public HandController[] handsAttached2Shaker = new HandController[2]; // 0 : Head, 1 : Body
+    private HandController[] handsAttached2Shaker = new HandController[2]; // 0 : Head, 1 : Body
 
     private float speed;
 
@@ -30,11 +30,21 @@ public class Shaker : MonoBehaviour, IListener
 
     public Transform shakerHead;
 
-    public GameObject shakerCapPourable;
+    public Pourable shakerCapPourable;
 
     public GameObject shakerCapObject;
 
-    public GameObject ice;
+    public List<AudioClip> clips = new();
+
+    public XRHandController[] hands = new XRHandController[2];//0 -> left;
+
+    SoundFunction soundfunction;
+
+    int state = -1;
+
+    public Transform BodyAttach;
+    private Vector3 initialPos;
+    private Quaternion initialRot;
 
     void Awake()
     {
@@ -64,24 +74,39 @@ public class Shaker : MonoBehaviour, IListener
         EventManager.Instance.AddListener(EVENT_TYPE.SHAKER_HEADON, this);
 
         shaker_Collider = GetComponent<BoxCollider>();
+        
+
     }
 
     void Start()
     {
+        hands[0] = GameObject.FindWithTag("LeftHand").GetComponent<XRHandController>();
+        hands[1] = GameObject.FindWithTag("RightHand").GetComponent<XRHandController>();
+        soundfunction = GetComponent<SoundFunction>();
     }
 
     void Update()
     {
-        if (handsAttached2Shaker[0].hand != null) //두손이 모두 쉐이커를 잡고 있으면,
+        if (handsAttached2Shaker[0].hand != null && handsAttached2Shaker[1].hand != null) //두손이 모두 쉐이커를 잡고 있으면,
         {
             GenHaptic(); //진동 발생
         }
-        DebugText.debugText.text = shake_cnt.ToString();
+        //DebugText.debugText.text = shake_cnt.ToString();
 
-        if(shake_cnt >= 200 && shakerCapObject != null)
+        if(shake_cnt >= 100 && shakerCapObject != null)
         {
             shakerCapObject.GetComponent<XRGrabInteractable>().enabled = true;
         }
+
+        if (shakerHead.gameObject.activeSelf)
+        {
+            state = 1;
+        }
+        else
+        {
+            state = 1;
+        }
+          
     }
 
     public void OnEvent(EVENT_TYPE Event_Type, Component Sender, object Param = null)
@@ -95,19 +120,41 @@ public class Shaker : MonoBehaviour, IListener
         }
     }
 
+    private XRHandController GetHand(string name)
+    {
+        if (name == "Left Controller")
+        {
+            return hands[0];
+        }
+        else if (name == "Right Controller")
+        {
+            return hands[1];
+        }
+        else
+        {
+            return null;
+        }
+    }
+
     private void ShakeHeadOn()
     {
-        Transform shaker_head = shakerHead.transform;
-
         shaker_Collider.center = new Vector3(-5.99164778e-05f, -4.15828836e-05f, 0.000879664498f);
         shaker_Collider.size = new Vector3(0.00155161147f, 0.00156158721f, 0.00438096002f);
 
-        shaker_head.gameObject.SetActive(true);
+        shakerHead.gameObject.SetActive(true);
+
+        XRGrabInteractable interactable = GetComponent<XRGrabInteractable>();
+        interactable.selectMode = InteractableSelectMode.Multiple;
+        interactable.trackPosition = interactable.trackRotation = true;
     }
 
-    public void SelectShaker(XRHandController hand)
+    public void SelectShaker(SelectEnterEventArgs args)
     {
-        if(hand == null)
+        Transform controller = args.interactorObject.transform.parent;
+
+        XRHandController hand = GetHand(controller.name);
+
+        if (hand == null || state == 0)
         {
             return;
         }
@@ -136,13 +183,19 @@ public class Shaker : MonoBehaviour, IListener
                 handsAttached2Shaker[1].hand = hand;
                 handsAttached2Shaker[1].value = dot;
             }
+            
+
         }
     }
 
 
-    public void UnSelectShaker(XRHandController hand)
+    public void UnSelectShaker(SelectExitEventArgs args)
     {
-        if (hand == null)
+        Transform controller = args.interactorObject.transform.parent;
+
+        XRHandController hand = GetHand(controller.name);
+
+        if (hand == null || state == 0)
         {
             return;
         }
@@ -152,12 +205,12 @@ public class Shaker : MonoBehaviour, IListener
             handsAttached2Shaker[0].hand = handsAttached2Shaker[1].hand;
             handsAttached2Shaker[0].value = handsAttached2Shaker[1].value;
             handsAttached2Shaker[1].hand = null;
-            handsAttached2Shaker[1].value = 0;
+            handsAttached2Shaker[1].value = -100;
         }
-        else
+        else if(handsAttached2Shaker[1].hand == hand)
         {
             handsAttached2Shaker[1].hand = null;
-            handsAttached2Shaker[1].value = 0;
+            handsAttached2Shaker[1].value = -100;
         }
     }
     
@@ -178,36 +231,91 @@ public class Shaker : MonoBehaviour, IListener
         axisShaker = axisShaker.normalized;
 
         float axis = Vector3.Dot(axisShaker, direction);
-        DebugText.debugText.text = speed.ToString();
+        //DebugText.debugText.text = speed.ToString();
         if (speed > MINSPEED)
         {
+
+            int rand = UnityEngine.Random.Range(1, 5);
+            soundfunction.ClipPlay(clips[rand]);
+
             if (axis > 0)
             {
-                handsAttached2Shaker[0].hand.E_haptic.SendHapticImpulse(0.5f, 0.5f);
+                handsAttached2Shaker[0].hand.E_haptic.SendHapticImpulse(1f, 0.3f);
+
+
 
             }
             else 
             {
-                handsAttached2Shaker[1].hand.E_haptic.SendHapticImpulse(0.5f, 0.5f);
+                handsAttached2Shaker[1].hand.E_haptic.SendHapticImpulse(1f, 0.3f);
             }
 
             shake_cnt++;
         }
     }
-    public void Cap_Off(Liquid liquid)
+    public void Cap_Off()
     {
         Destroy(shakerCapObject);
         //sourable active
-        shakerCapPourable.SetActive(true);
-        shakerCapPourable.GetComponent<Pourable>().Set_Color(liquid.l_color);
+        Liquids liquids = GetComponent<Storable>().Get_Liquids();
+
+        Rigidbody rb = GetComponent<Rigidbody>();
+
+        rb.constraints = RigidbodyConstraints.None; //un freeze rotation;
+
+        shakerCapPourable.Capoff();
+        shakerCapPourable.Set_Liquids(liquids);
     }
 
-    protected void OnCollisionEnter(Collision collision)
+    public void OnGrab(SelectEnterEventArgs args)
     {
-        if (collision.gameObject.CompareTag("ice"))
+        Transform controller = args.interactorObject.transform.parent;
+
+        if (controller == null || state == 1)
         {
-            if (ice.activeSelf == false)
-                ice.SetActive(true);
+            return;
+        }
+
+        XRHandController hand = GetHand(controller.name);
+
+        if (hand!=null)
+        {
+            hand.OnGrabbing(hand.transform.position, hand.transform.rotation);
+        }
+        else
+        {
+            return;
+        }
+
+    }
+
+    public void OnRelease(SelectExitEventArgs args)
+    {
+        Transform controller = args.interactorObject.transform.parent;
+
+        if (controller == null || state == 1)
+        {
+            return;
+        }
+
+        XRHandController hand = GetHand(controller.name);
+
+        if (hand != null)
+        {
+            hand.OnRelease();
+        }
+        else
+        {
+            return;
         }
     }
+
+    protected void OnTriggerStay(Collider other)
+    {
+        if (other.CompareTag("sink"))
+        {
+            transform.SetPositionAndRotation(initialPos, initialRot);
+        }
+    }
+
 }

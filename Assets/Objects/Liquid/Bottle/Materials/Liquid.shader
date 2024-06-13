@@ -1,4 +1,4 @@
-Shader "Custom/water"
+Shader "Custom/waterliquid"
 {
     Properties
     {
@@ -12,6 +12,8 @@ Shader "Custom/water"
         _FillAmount("FillAmount", Range(-100,100)) = 0.0
         [HideInInspector] _WobbleX("WobbleX", Range(-1,1)) = 0.0
         [HideInInspector] _WobbleZ("WobbleZ", Range(-1,1)) = 0.0
+
+
     }
         SubShader
         {
@@ -31,7 +33,6 @@ Shader "Custom/water"
             float4 _SPColor;
             float _SPPower;
             float _SPMulti;
-
             float _LiquidY;
 
             struct Input
@@ -56,8 +57,8 @@ Shader "Custom/water"
 
             void surf(Input IN, inout SurfaceOutput o)
             {
-                float3 normal1 = UnpackNormal(tex2D(_Bumpmap, IN.uv_Bumpmap + _Time.x * 0.1));
-                float3 normal2 = UnpackNormal(tex2D(_Bumpmap, IN.uv_Bumpmap - _Time.x * 0.1));
+                float3 normal1 = UnpackNormal(tex2D(_Bumpmap, IN.uv_Bumpmap + _Time.x * 0.01));
+                float3 normal2 = UnpackNormal(tex2D(_Bumpmap, IN.uv_Bumpmap - _Time.z * 0.01));
                 o.Normal = (normal1 + normal2) / 2;
 
                 float3 refcolor = _Color.rgb * texCUBE(_Cube, WorldReflectionVector(IN, o.Normal));
@@ -103,11 +104,11 @@ Shader "Custom/water"
 
                 float4 finalColor;
                 finalColor.rgb = spec * _SPColor.rgb * _SPMulti;
-                finalColor.a = s.Alpha + spec;
+                finalColor.a = s.Alpha;
 
                 return finalColor;
             }
             ENDCG
         }
-            FallBack "Legacy Shaders/Transparent/Vertexlit"
+            
 }

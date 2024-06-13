@@ -34,6 +34,15 @@ public class XRHandController : MonoBehaviour
     private bool primary;
     private bool secondary;
 
+    private bool isgrabbing = false;
+    public Vector3 grabbedPos;
+    public Quaternion grabbedRot;
+
+    private bool isforce = false;
+
+    public Vector3 initPos;
+    public Quaternion initRot;
+
     [SerializeField]
     private XRBaseControllerInteractor e_haptic;
 
@@ -42,30 +51,60 @@ public class XRHandController : MonoBehaviour
         get { return e_haptic; }
     }
 
-    // Define the positions of the finger joints
-    public Transform thumbJoint;
-    public Transform indexFingerJoint;
-    public Transform middleFingerJoint;
-    public Transform ringFingerJoint;
-    public Transform pinkyFingerJoint;
-
-    // Adjust these values based on your model and preferences
-    public float fingerIKWeight = 1.0f;
-    public float fingerIKPositionWeight = 0.5f;
-
 
     // Start is called before the first frame update
     void Start()
     {
         animator = GetComponent<Animator>();
 
+        initPos = transform.localPosition;
+        initRot = transform.localRotation;
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        AnimationHand();
+        if(!isforce)
+            AnimationHand();
+
+        if (isgrabbing)
+        {
+            transform.SetPositionAndRotation(grabbedPos, grabbedRot);
+        }
+        else
+        {
+            transform.SetLocalPositionAndRotation(initPos, initRot);
+        }
     }
+
+    public void OnGrabbing(Vector3 position, Quaternion rotation) //hand grab fixed positioned object.
+    {
+        grabbedPos = position;
+        grabbedRot = rotation;
+        isgrabbing = true;
+    }
+
+    public void OnRelease()
+    {
+        isgrabbing = false;
+    }
+
+    public void ReleaseAndLock()
+    {
+        isforce = true;
+        animator.SetFloat("Index", 0);
+        animator.SetFloat("3Fingers", 0);
+        animator.SetFloat("Thumb", 0);
+    }
+
+    public void UnLock()
+    {
+        isforce = false;
+    }
+
+
+
 
     private InputDevice GetInputDevice()
     {
@@ -84,9 +123,6 @@ public class XRHandController : MonoBehaviour
 
         return inputDevices[0];
     }
-
-
-
 
 
     void AnimationHand()
@@ -114,47 +150,6 @@ public class XRHandController : MonoBehaviour
         animator.SetFloat("3Fingers", threeFingersValue);
         animator.SetFloat("Thumb", thumbValue);
 
-        //ApplyFingerIK();
     }
-
-    //void ApplyFingerIK()
-    //{
-    //    // Calculate target positions for the finger joints
-    //    Vector3 thumbTargetPosition = CalculateFingerTargetPosition(thumbJoint);
-    //    Vector3 indexTargetPosition = CalculateFingerTargetPosition(indexFingerJoint);
-    //    Vector3 middleTargetPosition = CalculateFingerTargetPosition(middleFingerJoint);
-    //    Vector3 ringTargetPosition = CalculateFingerTargetPosition(ringFingerJoint);
-    //    Vector3 pinkyTargetPosition = CalculateFingerTargetPosition(pinkyFingerJoint);
-
-    //    // Apply IK positions
-    //    ApplyFingerIKPosition(thumbJoint, thumbTargetPosition);
-    //    ApplyFingerIKPosition(indexFingerJoint, indexTargetPosition);
-    //    ApplyFingerIKPosition(middleFingerJoint, middleTargetPosition);
-    //    ApplyFingerIKPosition(ringFingerJoint, ringTargetPosition);
-    //    ApplyFingerIKPosition(pinkyFingerJoint, pinkyTargetPosition);
-    //}
-
-    //Vector3 CalculateFingerTargetPosition(Transform joint)
-    //{
-    //    // Get the current rotation of the joint
-    //    Quaternion jointRotation = joint.localRotation;
-
-    //    // Calculate the bend direction based on the joint's z-local axis
-    //    Vector3 bendDirection = jointRotation * Vector3.forward;
-
-    //    // Define the desired bend angle (in radians) - adjust this based on your needs
-    //    float desiredBendAngle = Mathf.PI / 4.0f; // 45 degrees in radians
-
-    //    // Calculate the target position based on the desired bend angle
-    //    Vector3 targetPosition = joint.position + (bendDirection * Mathf.Tan(desiredBendAngle) * joint.localScale.z);
-
-    //    return targetPosition;
-    //}
-
-    //void ApplyFingerIKPosition(Transform joint, Vector3 targetPosition)
-    //{
-    //    // Apply IK position for the finger joint
-    //    joint.position = Vector3.Lerp(joint.position, targetPosition, fingerIKPositionWeight);
-    //}
 
 }
